@@ -1,0 +1,83 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using Sandbox.Menu;
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@attribute [StyleSheet]
+
+@namespace FlappyGame
+
+<root>
+
+    <div class="ground" />
+
+</root>
+
+@code
+{
+    public ILobby Lobby { get; set; } = Game.Menu.Lobby;
+
+    protected override void OnAfterTreeRender(bool firstTime)
+    {
+        base.OnAfterTreeRender(firstTime);
+
+        if (firstTime)
+        {
+            Lobby.OnChatMessage = OnChatMessage;
+            Lobby.OnMemberEnter = OnMemberEnter;
+            Lobby.OnMemberLeave = OnMemberLeave;
+
+            if(Lobby.Owner.Id == Game.SteamId)
+            {
+                InitLobby();
+            }
+            else
+            {
+                JoinedLobby();
+            }
+        }
+    }
+
+    void InitLobby()
+    {
+
+    }
+
+    void JoinedLobby()
+    {
+        
+    }
+
+    void OnChatMessage(Friend friend, string message)
+    {
+
+    }
+
+    void OnMemberEnter(Friend friend)
+    {
+
+    }
+
+    void OnMemberLeave(Friend friend)
+    {
+
+    }
+
+    @* void CreateChatEntry(string name, string message, string styles = "")
+    {
+        var entry = ChatBox.AddChild<ChatEntry>();
+        entry.SetMessage(name, message);
+        entry.AddClass(styles);
+
+        if(ChatBox.ChildrenCount > 1000)
+        {
+            ChatBox.GetChild(0).Delete();
+        }
+
+        Audio.Play("ui.chat.message" + (ChatIndex + 1));
+
+        ChatIndex = (ChatIndex + 1) % 2;
+    } *@
+
+}
