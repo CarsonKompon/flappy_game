@@ -182,7 +182,10 @@
 
     void JoinedLobby()
     {
+        ByteStream data = ByteStream.Create(2);
+        data.Write((ushort)NETWORK_MESSAGE.NONE);
 
+        Lobby.BroadcastMessage(data);
     }
 
     void ShowChat()

@@ -8,6 +8,7 @@ namespace FlappyGame;
 
 enum NETWORK_MESSAGE
 {
+    NONE,
     PLAYER_SPAWN,
     PLAYER_UPDATE,
     PLAYER_KILL,
@@ -85,7 +86,7 @@ public partial class GameMenu
         ByteStream data = ByteStream.Create(2);
         data.Write((ushort)NETWORK_MESSAGE.PLAYER_KILL);
 
-        Lobby.BroadcastMessage(data);
+        Lobby?.BroadcastMessage(data);
     }
 
     void NetworkNewHighscore(ulong score)
@@ -94,6 +95,6 @@ public partial class GameMenu
         data.Write((ushort)NETWORK_MESSAGE.NEW_HIGHSCORE);
         data.Write((ulong)score);
 
-        Lobby.BroadcastMessage(data);
+        Lobby?.BroadcastMessage(data);
     }
 }
