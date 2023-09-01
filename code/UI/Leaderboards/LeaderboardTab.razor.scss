@@ -11,6 +11,7 @@ LeaderboardTab
 
     .leaderboard
     {
+        flex-direction: column;
         padding: 4px;
         flex-grow: 1;
         overflow-y: scroll;
@@ -22,6 +23,7 @@ LeaderboardTab
             height: 32px;
             font-size: 18px;
             align-items: center;
+            flex-shrink: 0;
 
             .rank
             {
