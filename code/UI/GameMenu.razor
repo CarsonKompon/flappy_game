@@ -262,7 +262,14 @@
             ChatPanel.GetChild(ChatPanel.ChildrenCount - 1).Delete();
         }
 
-        Audio.Play("ui.button.press");
+        if(styles.Contains("highscore"))
+        {
+            Audio.Play("ui.favourite");
+        }
+        else
+        {
+            Audio.Play("ui.button.press");
+        }
     }
 
     void OnChatMessage(Friend friend, string message)
