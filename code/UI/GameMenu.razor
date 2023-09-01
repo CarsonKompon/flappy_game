@@ -285,12 +285,12 @@
 
     void OnMemberEnter(Friend friend)
     {
-        CreateChatEntry(friend.Name, " joined the lobby!", "join-message", friend.Id);
+        CreateChatEntry(friend.Name, " joined the game!", "join-message", friend.Id);
     }
 
     void OnMemberLeave(Friend friend)
     {
-        CreateChatEntry(friend.Name, " left the lobby!", "leave-message", friend.Id);
+        CreateChatEntry(friend.Name, " left the game!", "leave-message", friend.Id);
     }
 
     public override void Tick()
