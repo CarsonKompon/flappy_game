@@ -303,6 +303,7 @@
                 Pipe pipe = GamePanel.AddChild<Pipe>();
                 pipe.Init(PipeX, new Random().Next(200, (int)ScreenHeight-200));
                 Pipes.Add(pipe);
+                Log.Info("piping");
 
                 PipeX += 350;
             }
