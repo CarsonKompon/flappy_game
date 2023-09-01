@@ -46,15 +46,12 @@
             {
                 Lobby = lobby;
                 await Lobby.JoinAsync();
+                InLobby = true;
+                StateHasChanged();
                 return;
             }
         }
         Lobby = await Game.Menu.CreateLobbyAsync(100);
-    }
-
-    [GameEvent.Menu.LobbyJoined]
-    public void OnLobbyJoined()
-    {
         InLobby = true;
         StateHasChanged();
     }

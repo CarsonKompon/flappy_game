@@ -1,5 +1,6 @@
 @using Sandbox;
 @using Sandbox.UI;
+@using Sandbox.UI.Construct;
 @using Sandbox.Menu;
 @using System;
 @using System.Collections.Generic;
@@ -10,13 +11,32 @@
 
 <root>
 
-    <div class="ground" />
+    <div @ref="MenuPanel" class="menu">
+    </div>
+
+    <div @ref="GamePanel" class="game">
+
+    </div>
+
+    <div @ref="ClickPanel" class="click">
+    </div>
+
+    <div @ref="GroundPanel" class="ground" />
 
 </root>
 
 @code
 {
+    Panel MenuPanel { get; set; }
+    public Panel GamePanel { get; set; }
+    Panel ClickPanel { get; set; }
+    Panel GroundPanel { get; set; }
     public ILobby Lobby { get; set; } = Game.Menu.Lobby;
+
+    public static GameMenu Instance;
+    public static float ScreenWidth { get => Instance.GamePanel.Box.Rect.Width * Instance.GamePanel.ScaleFromScreen; }
+    public static float ScreenHeight { get => Instance.GamePanel.Box.Rect.Height * Instance.GamePanel.ScaleFromScreen; }
+    public static float CameraX = 0f; 
 
     protected override void OnAfterTreeRender(bool firstTime)
     {
@@ -24,6 +44,10 @@
 
         if (firstTime)
         {
+            Instance = this;
+
+            ClickPanel.AddEventListener("onclick", OnClick);
+            
             Lobby.OnChatMessage = OnChatMessage;
             Lobby.OnMemberEnter = OnMemberEnter;
             Lobby.OnMemberLeave = OnMemberLeave;
@@ -36,6 +60,91 @@
             {
                 JoinedLobby();
             }
+
+            CreateMenu();
+        }
+
+        // Camera follows local player
+        bool hasLocalPlayer = false;
+        foreach(var child in GamePanel.Children)
+        {
+            if(child is Player player)
+            {
+                // If Local Player...
+                if(player.IsLocalPlayer())
+                {
+                    CameraX = MathX.Lerp(CameraX, player.Position.x-(ScreenWidth/2f), 60f * Time.Delta); 
+                    hasLocalPlayer = true;
+                }
+            }
+        }
+
+        // Return camera to starting position
+        if(!hasLocalPlayer)
+        {
+            CameraX = MathX.Lerp(CameraX, 0f, 30f * Time.Delta); 
+        }
+
+        GroundPanel.Style.BackgroundPositionX = -CameraX;
+    }
+
+    void CreateMenu()
+    {
+        MenuPanel.DeleteChildren();
+        MenuPanel.Add.Panel("logo");
+        Panel playButton = MenuPanel.Add.Panel("button-play");
+        playButton.AddEventListener("onclick", PlayGame);
+        ClickPanel.Style.ZIndex = 0;
+    }
+
+    void RemoveMenu()
+    {
+        MenuPanel.DeleteChildren();
+        ClickPanel.Style.ZIndex = 200;
+    }
+
+    void PlayGame()
+    {
+        RemoveMenu();
+
+        SpawnPlayer(Game.SteamId);
+        NetworkPlayerSpawn();
+    }
+
+    void SpawnPlayer(long steamid)
+    {
+        // Destroy any other player that might exist
+        for(int i=0; i<GamePanel.ChildrenCount; i++)
+        {
+            if(GamePanel.Children.ElementAt(i) is Player ply && ply.Member.Id == steamid)
+            {
+                ply.Delete(true);
+            }
+        }
+
+        foreach(var child in GamePanel.Children)
+        {
+            if(child is Player ply && ply.Member.Id == steamid)
+            {
+                child.Delete(true);
+            }
+        }
+
+        Player player = GamePanel.AddChild<Player>();
+        player.SetMember(new Friend(steamid));
+    }
+
+    void UpdatePlayer(long steamid, ulong x, ulong y, float vspd)
+    {
+        foreach(var child in GamePanel.Children)
+        {
+            if(child is Player ply && ply.Member.Id == steamid && !ply.HasClass("outro"))
+            {
+                ply.Position = new Vector2(x, y);
+                ply.Vspd = vspd;
+
+                return;
+            }
         }
     }
 
@@ -46,8 +155,43 @@
 
     void JoinedLobby()
     {
-        
+
     }
+
+    void OnClick()
+    {
+        // Loop through all players
+        foreach(var child in GamePanel.Children)
+        {
+            if(child is Player player)
+            {
+                // If Local Player...
+                if(player.IsLocalPlayer())
+                {
+                    player.Jump();
+                }
+            }
+        }
+    }
+
+    public static void Kill(long steamid)
+    {
+        foreach(var child in Instance.GamePanel.Children)
+        {
+            if(child is Player player && player.Member.Id == steamid)
+            {
+                // Return to menu if local player
+                if(player.IsLocalPlayer())
+                {
+                    Instance.CreateMenu();
+                }
+
+                child.Delete();
+                break;
+            }
+        }
+    }
+
 
     void OnChatMessage(Friend friend, string message)
     {
@@ -62,6 +206,11 @@
     void OnMemberLeave(Friend friend)
     {
 
+    }
+
+    public override void Tick()
+    {
+        Lobby.ReceiveMessages(OnNetworkMessage);
     }
 
     @* void CreateChatEntry(string name, string message, string styles = "")
@@ -79,5 +228,10 @@
 
         ChatIndex = (ChatIndex + 1) % 2;
     } *@
+
+    protected override int BuildHash()
+	{
+		return HashCode.Combine(Time.Now);
+	}
 
 }

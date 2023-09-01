@@ -1,0 +1,57 @@
+
+Player
+{
+    position: absolute;
+    width: 72px;
+    height: 72px;
+    transform-origin: center;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 0.5;
+    flex-direction: column;
+
+    transition: transform 2s;
+
+    .icon-container
+    {
+        width: 72px;
+        height: 72px;
+        border: 2px solid #3b5dc9;
+        border-radius: 50%;
+        overflow: hidden;
+
+        .icon
+        {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .nametag
+    {
+        display: flex;
+        position: absolute;
+        width: 250%;
+        top: 102%;
+        font-family: Poppins;
+        align-self: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: center;
+        font-size: 24px;
+    }
+
+    &.me
+    {
+        opacity: 1;
+
+        .nametag
+        {
+            display: none;
+        }
+    }
+
+    &:outro
+    {
+        transform: translate(0% 0%) scale(0);
+    }
+}
