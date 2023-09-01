@@ -147,11 +147,11 @@
             }
         }
 
-        foreach(var child in GamePanel.Children)
+        foreach(var ply in Players)
         {
-            if(child is Player ply && ply.Member.Id == steamid)
+            if(ply.Member.Id == steamid)
             {
-                child.Delete(true);
+                ply.Delete(true);
             }
         }
 
@@ -230,6 +230,8 @@
                 if(player.IsLocalPlayer())
                 {
                     Instance.CreateMenu();
+
+                    Audio.Play("game.die");
 
                     if(Instance.Score > Instance.Highscore)
                     {
@@ -312,6 +314,7 @@
                 Pipe pipe = Pipes[i];
                 if(!pipe.Passed && pipe.Position.x + 65 < localPlayer.Position.x)
                 {
+                    Audio.Play("game.score");
                     Score++;
                     ScoreLabel.Text = Score.ToString();
                     pipe.Passed = true;

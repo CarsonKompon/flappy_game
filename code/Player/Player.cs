@@ -75,6 +75,7 @@ public class Player : Panel
         Vspd = -550f;
         GameMenu.Instance.Flaps++;
         GameMenu.Instance.NetworkPlayerUpdate(this);
+        Audio.Play("game.flap");
     }
 
     public bool IsLocalPlayer()
