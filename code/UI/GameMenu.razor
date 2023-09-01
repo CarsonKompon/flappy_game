@@ -31,12 +31,20 @@
     public Panel GamePanel { get; set; }
     Panel ClickPanel { get; set; }
     Panel GroundPanel { get; set; }
+    Label ScoreLabel { get; set; }
     public ILobby Lobby { get; set; } = Game.Menu.Lobby;
+    public List<Player> Players { get; set; } = new List<Player>();
+    public List<Pipe> Pipes { get; set; } = new List<Pipe>();
 
     public static GameMenu Instance;
     public static float ScreenWidth { get => Instance.GamePanel.Box.Rect.Width * Instance.GamePanel.ScaleFromScreen; }
     public static float ScreenHeight { get => Instance.GamePanel.Box.Rect.Height * Instance.GamePanel.ScaleFromScreen; }
     public static float CameraX = 0f; 
+
+    public bool Playing = false;
+    ulong PipeX = 0;
+    ulong Score = 0;
+    public ulong Flaps = 0;
 
     protected override void OnAfterTreeRender(bool firstTime)
     {
@@ -63,52 +71,43 @@
 
             CreateMenu();
         }
-
-        // Camera follows local player
-        bool hasLocalPlayer = false;
-        foreach(var child in GamePanel.Children)
-        {
-            if(child is Player player)
-            {
-                // If Local Player...
-                if(player.IsLocalPlayer())
-                {
-                    CameraX = MathX.Lerp(CameraX, player.Position.x-(ScreenWidth/2f), 60f * Time.Delta); 
-                    hasLocalPlayer = true;
-                }
-            }
-        }
-
-        // Return camera to starting position
-        if(!hasLocalPlayer)
-        {
-            CameraX = MathX.Lerp(CameraX, 0f, 30f * Time.Delta); 
-        }
-
-        GroundPanel.Style.BackgroundPositionX = -CameraX;
     }
 
     void CreateMenu()
     {
+        Playing = false;
         MenuPanel.DeleteChildren();
         MenuPanel.Add.Panel("logo");
         Panel playButton = MenuPanel.Add.Panel("button-play");
         playButton.AddEventListener("onclick", PlayGame);
         ClickPanel.Style.ZIndex = 0;
+        MenuPanel.AddChild<LeaderboardTabMenu>();
     }
 
     void RemoveMenu()
     {
         MenuPanel.DeleteChildren();
         ClickPanel.Style.ZIndex = 200;
+        ScoreLabel = MenuPanel.Add.Label("0", "score");
     }
 
     void PlayGame()
     {
         RemoveMenu();
+        Playing = true;
+        PipeX = ((ulong)ScreenWidth/2) + 600;
+        Score = 0;
+        Flaps = 0;
 
         SpawnPlayer(Game.SteamId);
         NetworkPlayerSpawn();
+
+        // Remove all pipes
+        foreach(var pipe in Pipes)
+        {
+            pipe.Delete(true);
+        }
+        Pipes.Clear();
     }
 
     void SpawnPlayer(long steamid)
@@ -132,6 +131,8 @@
 
         Player player = GamePanel.AddChild<Player>();
         player.SetMember(new Friend(steamid));
+
+        Players.Add(player);
     }
 
     void UpdatePlayer(long steamid, ulong x, ulong y, float vspd)
@@ -184,7 +185,13 @@
                 if(player.IsLocalPlayer())
                 {
                     Instance.CreateMenu();
+
+                    Sandbox.Services.Stats.Increment("total-flaps", Instance.Flaps);
+                    Sandbox.Services.Stats.Increment("total-score", Instance.Score);
+                    Sandbox.Services.Stats.SetValue("best-score", Instance.Score);
                 }
+
+                Instance.Players.Remove(player);
 
                 child.Delete();
                 break;
@@ -211,6 +218,77 @@
     public override void Tick()
     {
         Lobby.ReceiveMessages(OnNetworkMessage);
+
+        Player localPlayer = LocalPlayer();
+
+        if(Playing)
+        {
+            if(PipeX + 130 < localPlayer.Position.x + ScreenWidth)
+            {
+
+                Pipe pipe = GamePanel.AddChild<Pipe>();
+                pipe.Init(PipeX, new Random().Next(200, (int)ScreenHeight-200));
+                Pipes.Add(pipe);
+
+                PipeX += 350;
+            }
+
+            float playerW = localPlayer.PixelWidth;
+            float playerH = localPlayer.PixelHeight;
+            for(int i=0; i<Pipes.Count; i++)
+            {
+                Pipe pipe = Pipes[i];
+                if(!pipe.Passed && pipe.Position.x + 65 < localPlayer.Position.x)
+                {
+                    Score++;
+                    ScoreLabel.Text = Score.ToString();
+                    pipe.Passed = true;
+                }
+
+                if((localPlayer.Position.x + playerW/2) > pipe.Position.x
+                && (localPlayer.Position.x - playerW/2) < (pipe.Position.x + pipe.PixelWidth)
+                && ((localPlayer.Position.y - playerH/2) < (pipe.Position.y - pipe.Gap/2)
+                || (localPlayer.Position.y + playerH/2) > (pipe.Position.y + pipe.Gap/2)))
+                {
+                    Kill(localPlayer.Member.Id);
+                }
+                else if(pipe.Position.x < CameraX - ScreenWidth)
+                {
+                    pipe.Delete(true);
+                    Pipes.Remove(pipe);
+                }
+            }
+        }
+
+        // Camera Movement
+        if(localPlayer == null)
+        {
+            // Return camera to starting position
+            CameraX = MathX.Lerp(CameraX, 0f, 30f * Time.Delta); 
+        }
+        else
+        {
+            // Camera follows local player
+            CameraX = MathX.Lerp(CameraX, localPlayer.Position.x-(ScreenWidth/2f), 60f * Time.Delta);
+        }
+
+        GroundPanel.Style.BackgroundPositionX = -CameraX;
+    }
+
+    public Player LocalPlayer()
+    {
+        foreach(var child in GamePanel.Children)
+        {
+            if(child is Player player)
+            {
+                // If Local Player...
+                if(player.IsLocalPlayer())
+                {
+                    return player;
+                }
+            }
+        }
+        return null;
     }
 
     @* void CreateChatEntry(string name, string message, string styles = "")

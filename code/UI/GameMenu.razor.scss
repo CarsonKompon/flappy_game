@@ -22,6 +22,26 @@ GameMenu
         
         flex-direction: column;
 
+        > .score
+        {
+            position: absolute;
+            top: 16px;
+            font-family: Poppins;
+            font-size: 32px;
+            align-self: center;
+            transition: all 1s ease-out;
+
+            &:intro
+            {
+                top: -200px;
+            }
+
+            &:outro
+            {
+                top: -200px;
+            }
+        }
+
         .logo
         {
             position: absolute;
@@ -100,6 +120,7 @@ GameMenu
     .ground
     {
         position: absolute;
+        image-rendering: pixelated;
         background-image: url("/sprites/ground.png");
         background-repeat: repeat-x;
         width: 100%;

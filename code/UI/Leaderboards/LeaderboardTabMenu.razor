@@ -1,0 +1,44 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using System.Threading.Tasks;
+@attribute [StyleSheet]
+
+@inherits Sandbox.UI.NavHostPanel
+
+@namespace FlappyGame
+
+<root>
+    <div class="navbar">
+        <div class="navbar-inner">
+            @for(int i = 0; i < Leaderboards.Length; i++)
+            {
+                var leaderboard = Leaderboards[i];
+                var name = LeaderboardNames[i];
+                <a class="nav-link" href="/@leaderboard">@name</a>
+            }
+        </div>
+    </div>
+</root>
+
+@code
+{
+    string[] Leaderboards = new string[] { "best-score", "total-score", "total-flaps" };
+    string[] LeaderboardNames = new string[] { "Best Scores", "Total Score", "Most Flaps" };
+
+    public LeaderboardTabMenu()
+    {
+        DefaultUrl = Leaderboards[0];
+
+        foreach(string leaderboard in Leaderboards)
+        {
+            AddDestination(leaderboard, typeof(LeaderboardTab));
+        }
+    }
+
+    string GetLeaderboardName(string leaderboard)
+    {
+        var board = Sandbox.Services.Leaderboards.Get( leaderboard );
+        return board.DisplayName;
+    }
+
+}

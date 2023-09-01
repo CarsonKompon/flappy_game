@@ -1,0 +1,68 @@
+
+LeaderboardTabMenu
+{
+
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 500px;
+    height: 300px;
+    background-color: rgba(white, 0.4);
+    padding: 12px;
+    flex-direction: column;
+    font-family: Poppins;
+    gap: 8px;
+    transition: right 2s ease-in-out;
+
+    .navbar
+    {
+        background-color: rgba(black, 0.2);
+        width: 100%;
+
+        .navbar-inner
+        {
+            justify-content: space-evenly;
+            width: 100%;
+
+            a
+            {
+                background-color: rgba(white, 0);
+                padding: 2px 8px;
+                transition: all 0.2s ease-out;
+
+                &:hover
+                {
+                    background-color: rgba(white, 0.2);
+                }
+
+                &:active
+                {
+                    background-color: rgba(black, 0.2);
+                }
+
+                &.active
+                {
+                    background-color: rgba(white, 0.2);
+                }
+            }
+        }
+    }
+
+    LeaderboardTab
+    {
+        flex-grow: 1;
+        background-color: rgba(black, 0.2);
+    }
+
+    &:intro
+    {
+        right: -500px;
+    }
+
+    &:outro
+    {
+        right: -500px;
+        transition: right 0.75s ease-in-out;
+    }
+    
+}

@@ -72,7 +72,8 @@ public class Player : Panel
 
     public void Jump()
     {
-        Vspd = -625f;
+        Vspd = -550f;
+        GameMenu.Instance.Flaps++;
         GameMenu.Instance.NetworkPlayerUpdate(this);
     }
 

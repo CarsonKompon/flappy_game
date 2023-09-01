@@ -1,0 +1,87 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using Sandbox.UI.Construct;
+@attribute [StyleSheet]
+
+@inherits Sandbox.UI.NavHostPanel
+
+@namespace FlappyGame
+
+<root>
+    <div class="navbar">
+        <div @ref="NavbarPanel" class="navbar-inner">
+            <a onclick=@InitGlobal class="global" >Global</a>
+            <a onclick=@InitCountry class="country" >Country</a>
+            <a onclick=@InitFriends class="friends" >Friends</a>
+        </div>
+    </div>
+    <div @ref="LeaderboardPanel" class="leaderboard" />
+</root>
+
+@code
+{
+    Panel NavbarPanel { get; set; }
+    Panel LeaderboardPanel { get; set; }
+    string Title { get; set; }
+
+    protected override void OnAfterTreeRender(bool firstTime)
+    {
+        base.OnAfterTreeRender(firstTime);
+
+        if(firstTime)
+        {
+            Init();
+        }
+    }
+
+    async void Init(string group = "global")
+    {
+        var board = Sandbox.Services.Leaderboards.Get(GetCurrentUrl().Replace("/", ""));
+        board.MaxEntries = 25;
+        board.Group = group;
+        Title = board.DisplayName;
+        await board.Refresh();
+
+        LeaderboardPanel.DeleteChildren(true);
+        foreach(var entry in board.Entries)
+        {
+            var entryPanel = LeaderboardPanel.Add.Panel("leaderboard-entry");
+            entryPanel.Add.Label("##" + entry.Rank.ToString(), "rank");
+            entryPanel.Add.Image($"avatar:{entry.SteamId}", "avatar");
+            entryPanel.Add.Label(entry.DisplayName, "name");
+            entryPanel.Add.Label(entry.Value.ToString(), "score");
+        }
+
+        foreach(var navlink in NavbarPanel.Children)
+        {
+            navlink.SetClass("active", navlink.Classes.Contains(group));
+        }
+
+        StateHasChanged();
+    }
+
+    void InitGlobal()
+    {
+        Init("global");
+    }
+
+    void InitCountry()
+    {
+        Init("country");
+    }
+
+    void InitFriends()
+    {
+        Init("friends");
+    }
+    
+    string GetCurrentUrl()
+    {
+        if(Parent is LeaderboardTabMenu tabMenu)
+        {
+            return tabMenu.CurrentUrl;
+        }
+        return "";
+    }
+
+}

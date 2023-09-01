@@ -1,0 +1,47 @@
+
+Pipe
+{
+    position: absolute;
+    width: 129px;
+    height: 1024px;
+    flex-direction: column;
+
+    panel
+    {
+        width: 100%;
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
+    
+    .shaft-top
+    {
+        background-image: url("/sprites/pipe-shaft.png");
+        height: 1024px;
+        background-repeat: repeat-y;
+    }
+
+    .end-top
+    {
+        background-image: url("/sprites/pipe-top.png");
+        height: 60px;
+    }
+
+    .gap
+    {
+        height: 10px;
+    }
+
+    .end-bottom
+    {
+        background-image: url("/sprites/pipe-bottom.png");
+        height: 60px;
+    }
+
+    .shaft-bottom
+    {
+        background-image: url("/sprites/pipe-shaft.png");
+        background-repeat: repeat-y;
+        height: 1024px;
+    }
+
+}
