@@ -128,6 +128,85 @@ GameMenu
         bottom: 0px;
     }
 
+    .chatbox
+    {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        width: 500px;
+        height: 600px;
+        background-color: rgba( black, 0);
+        z-index: 250;
+        flex-direction: column;
+        padding: 8px;
+        gap: 8px;
+        font-family: Poppins;
+        font-size: 18px;
+        transition: all 0.1s ease-out;
+
+        .chat
+        {
+            flex-grow: 1;
+            flex-direction: column-reverse;
+            overflow-y: scroll;
+            gap: 4px;
+
+            chatentry
+            {
+                opacity: 1;
+                transition: opacity 0.1s ease-out;
+                left: 0px;
+                transition: left 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+                &.fade
+                {
+                    opacity: 0;
+                }
+
+                &:intro
+                {
+                    left: 16px;
+                }
+            }
+        }
+
+        textentry
+        {
+            opacity: 1;
+            color: white;
+            font-size: 20px;
+            white-space: pre-wrap;
+            flex-shrink: 0;
+
+            .placeholder
+            {
+                color: rgb(218, 218, 218);
+            }
+        }
+
+        &.show
+        {
+            background-color: rgba( black, 0.5);
+
+            .chat
+            {
+                chatentry
+                {
+                    &.fade
+                    {
+                        opacity: 1;
+                    }
+                }
+            }
+
+            textentry
+            {
+                opacity: 1;
+                background-color: rgba( black, 0.5);
+            }
+        }
+    }
+
     .click
     {
         position: absolute;

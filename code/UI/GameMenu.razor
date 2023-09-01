@@ -21,6 +21,13 @@
     <div @ref="ClickPanel" class="click">
     </div>
 
+    <div @ref="ChatBox" class="chatbox">
+        <div @ref="ChatPanel" class="chat" PreferScrollToBottom=@(true)>
+        </div>
+
+        <TextEntry @ref="ChatTextEntry" CaretColor=@(Color.White) onsubmit=@SendChat onblur=@CloseChat Value:bind=@ChatText Placeholder="Enter message..." AllowEmojiReplace=@(true) ></TextEntry>
+    </div>
+
     <div @ref="GroundPanel" class="ground" />
 
 </root>
@@ -32,6 +39,10 @@
     Panel ClickPanel { get; set; }
     Panel GroundPanel { get; set; }
     Label ScoreLabel { get; set; }
+    Panel ChatBox { get; set; }
+    Panel ChatPanel { get; set; }
+    TextEntry ChatTextEntry { get; set; }
+    string ChatText { get; set; }
     public ILobby Lobby { get; set; } = Game.Menu.Lobby;
     public List<Player> Players { get; set; } = new List<Player>();
     public List<Pipe> Pipes { get; set; } = new List<Pipe>();
@@ -159,6 +170,25 @@
 
     }
 
+    void ShowChat()
+    {
+        ChatBox.AddClass("show");
+		ChatTextEntry.Focus();
+    }
+
+    void CloseChat()
+    {
+        ChatBox.RemoveClass("show");
+		ChatTextEntry.Blur();
+    }
+
+    void SendChat()
+    {
+        Lobby.SendChat(ChatText);
+        ChatTextEntry.Text = "";
+        CloseChat();
+    }
+
     void OnClick()
     {
         // Loop through all players
@@ -199,10 +229,24 @@
         }
     }
 
+    void CreateChatEntry(string name, string message, string styles = "", long steamid = -1)
+    {
+        var entry = ChatPanel.AddChild<ChatEntry>();
+        ChatPanel.SetChildIndex(entry, 0);
+        entry.SetMessage(name, message, steamid);
+        entry.AddClass(styles);
+
+        if(ChatPanel.ChildrenCount > 200)
+        {
+            ChatPanel.GetChild(ChatPanel.ChildrenCount - 1).Delete();
+        }
+
+        Audio.Play("ui.button.press");
+    }
 
     void OnChatMessage(Friend friend, string message)
     {
-
+        CreateChatEntry(friend.Name + ":", message, "", friend.Id);
     }
 
     void OnMemberEnter(Friend friend)
@@ -260,6 +304,11 @@
             }
         }
 
+        if(Input.Pressed("chat"))
+        {
+            ShowChat();
+        }
+
         // Camera Movement
         if(localPlayer == null)
         {
@@ -290,22 +339,6 @@
         }
         return null;
     }
-
-    @* void CreateChatEntry(string name, string message, string styles = "")
-    {
-        var entry = ChatBox.AddChild<ChatEntry>();
-        entry.SetMessage(name, message);
-        entry.AddClass(styles);
-
-        if(ChatBox.ChildrenCount > 1000)
-        {
-            ChatBox.GetChild(0).Delete();
-        }
-
-        Audio.Play("ui.chat.message" + (ChatIndex + 1));
-
-        ChatIndex = (ChatIndex + 1) % 2;
-    } *@
 
     protected override int BuildHash()
 	{
