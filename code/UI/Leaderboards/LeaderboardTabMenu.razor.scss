@@ -18,6 +18,7 @@ LeaderboardTabMenu
     {
         background-color: rgba(black, 0.2);
         width: 100%;
+        flex-shrink: 0;
 
         .navbar-inner
         {

@@ -285,12 +285,12 @@
 
     void OnMemberEnter(Friend friend)
     {
-
+        CreateChatEntry(friend.Name, " joined the lobby!", "join-message", friend.Id);
     }
 
     void OnMemberLeave(Friend friend)
     {
-
+        CreateChatEntry(friend.Name, " left the lobby!", "leave-message", friend.Id);
     }
 
     public override void Tick()
@@ -325,10 +325,10 @@
                     pipe.Passed = true;
                 }
 
-                if((localPlayer.Position.x + playerW/2) > pipe.Position.x
-                && (localPlayer.Position.x - playerW/2) < (pipe.Position.x + pipe.PixelWidth)
-                && ((localPlayer.Position.y - playerH/2) < (pipe.Position.y - pipe.Gap/2)
-                || (localPlayer.Position.y + playerH/2) > (pipe.Position.y + pipe.Gap/2)))
+                if((localPlayer.Position.x + playerW/3) > pipe.Position.x
+                && (localPlayer.Position.x - playerW/3) < (pipe.Position.x + pipe.PixelWidth)
+                && ((localPlayer.Position.y - playerH/3) < (pipe.Position.y - pipe.Gap/2)
+                || (localPlayer.Position.y + playerH/3) > (pipe.Position.y + pipe.Gap/2)))
                 {
                     Kill(localPlayer.Member.Id);
                 }
