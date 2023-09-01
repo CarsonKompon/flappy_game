@@ -10,7 +10,8 @@ enum NETWORK_MESSAGE
 {
     PLAYER_SPAWN,
     PLAYER_UPDATE,
-    PLAYER_KILL
+    PLAYER_KILL,
+    NEW_HIGHSCORE
 }
 
 public partial class GameMenu
@@ -51,6 +52,12 @@ public partial class GameMenu
             case NETWORK_MESSAGE.PLAYER_KILL:
                 Kill(msg.Source.Id);
                 break;
+            
+            case NETWORK_MESSAGE.NEW_HIGHSCORE:
+                ulong score = data.Read<ulong>();
+                Friend friend = new Friend(msg.Source.Id);
+                CreateChatEntry(friend.Name, " got a new PB of " + score + "!", "highscore", friend.Id);
+                break;
         }
     }
 
@@ -77,6 +84,15 @@ public partial class GameMenu
     {
         ByteStream data = ByteStream.Create(2);
         data.Write((ushort)NETWORK_MESSAGE.PLAYER_KILL);
+
+        Lobby.BroadcastMessage(data);
+    }
+
+    void NetworkNewHighscore(ulong score)
+    {
+        ByteStream data = ByteStream.Create(2);
+        data.Write((ushort)NETWORK_MESSAGE.NEW_HIGHSCORE);
+        data.Write((ulong)score);
 
         Lobby.BroadcastMessage(data);
     }

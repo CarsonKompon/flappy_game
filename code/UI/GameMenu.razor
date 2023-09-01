@@ -56,6 +56,7 @@
     ulong PipeX = 0;
     ulong Score = 0;
     public ulong Flaps = 0;
+    ulong Highscore = 0;
 
     protected override void OnAfterTreeRender(bool firstTime)
     {
@@ -81,6 +82,20 @@
             }
 
             CreateMenu();
+
+            FetchHighscore();
+        }
+    }
+
+    async void FetchHighscore()
+    {
+        var board = Sandbox.Services.Leaderboards.Get("best-score");
+        board.MaxEntries = 1;
+        await board.Refresh();
+        var entry = board.Entries[0];
+        if(entry.Me)
+        {
+            Highscore = (ushort)entry.Value;
         }
     }
 
@@ -215,6 +230,12 @@
                 if(player.IsLocalPlayer())
                 {
                     Instance.CreateMenu();
+
+                    if(Instance.Score > Instance.Highscore)
+                    {
+                        Instance.CreateChatEntry(player.Member.Name, " got a new PB of " + Instance.Score + "!", "highscore", player.Member.Id);
+                        Instance.NetworkNewHighscore(Instance.Score);
+                    }
 
                     Sandbox.Services.Stats.Increment("total-flaps", Instance.Flaps);
                     Sandbox.Services.Stats.Increment("total-score", Instance.Score);
