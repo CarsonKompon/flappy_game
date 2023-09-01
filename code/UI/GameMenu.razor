@@ -240,6 +240,7 @@
                     {
                         Instance.CreateChatEntry(player.Member.Name, " got a new PB of " + Instance.Score + "!", "highscore", player.Member.Id);
                         Instance.NetworkNewHighscore(Instance.Score);
+                        Instance.Highscore = Instance.Score;
                     }
 
                     Sandbox.Services.Stats.Increment("total-flaps", Instance.Flaps);
