@@ -225,9 +225,9 @@
 
     public static void Kill(long steamid)
     {
-        foreach(var child in Instance.GamePanel.Children)
+        foreach(var player in Instance.Players)
         {
-            if(child is Player player && player.Member.Id == steamid)
+            if(player.Member.Id == steamid)
             {
                 // Return to menu if local player
                 if(player.IsLocalPlayer())
@@ -246,11 +246,13 @@
 
                     Sandbox.Services.Stats.Increment("total-flaps", Instance.Flaps);
                     Sandbox.Services.Stats.Increment("total-score", Instance.Score);
+                
+                    Instance.NetworkPlayerKill();
                 }
 
                 Instance.Players.Remove(player);
 
-                child.Delete();
+                player.Delete();
                 break;
             }
         }
