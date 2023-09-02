@@ -27,7 +27,9 @@ LeaderboardTab
 
             .rank
             {
-                width: 42px;
+                width: 48px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .avatar
